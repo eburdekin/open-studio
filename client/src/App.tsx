@@ -4,7 +4,8 @@ import {
   Routes,
   // Navigate,
 } from "react-router-dom";
-import Layout from "./layouts/layout";
+import Layout from "./layouts/Layout";
+import Register from "./pages/Register";
 // import Navbar from "./components/Navbar";
 
 const App = () => {
@@ -27,6 +28,7 @@ const App = () => {
             </Layout>
           }
         />
+        <Route path="/register" element={<Register />} />
         <Route />
       </Routes>
     </Router>

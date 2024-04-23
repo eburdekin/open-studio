@@ -60,7 +60,7 @@ router.post(
         // match expiry of jwt
         maxAge: 86400000,
       });
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "User registered!" });
     } catch (error) {
       // error message from mongoDB could include sensitive info. use generic message on frontend but log the error on the backend
       res.status(500).send({ message: "Something went wrong" });
