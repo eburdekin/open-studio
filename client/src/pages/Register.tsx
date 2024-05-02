@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "react-query";
 import * as apiClient from "../api-client";
 import Layout from "../layouts/Layout";
+import { useAppContext } from "../contexts/AppContext";
 
 export type RegisterFormData = {
   firstName: string;
@@ -12,6 +13,8 @@ export type RegisterFormData = {
 };
 
 const Register = () => {
+  const { showToast } = useAppContext();
+
   const {
     register,
     watch,
@@ -19,12 +22,40 @@ const Register = () => {
     formState: { errors },
   } = useForm<RegisterFormData>();
 
+  const registerOptions = {
+    firstName: {
+      required: "First name is required.",
+    },
+    lastName: {
+      required: "Last name is required.",
+    },
+    email: {
+      required: "Email is required.",
+    },
+    password: {
+      required: "Password is required.",
+      minLength: {
+        value: 6,
+        message: "Password must be at least 6 characters.",
+      },
+    },
+    confirmPassword: {
+      validate: (value: string) => {
+        if (!value) {
+          return "This field is required.";
+        } else if (watch("password") !== value) {
+          return "Your passwords do not match.";
+        }
+      },
+    },
+  };
+
   const mutation = useMutation(apiClient.register, {
     onSuccess: () => {
-      console.log("Registration successful");
+      showToast({ message: "Registration successful!", type: "SUCCESS" });
     },
     onError: (error: Error) => {
-      console.log(error.message);
+      showToast({ message: error.message, type: "ERROR" });
     },
   });
 
@@ -43,9 +74,7 @@ const Register = () => {
               autoComplete="given-name"
               className="border rounded w-full py-1 px-2 font-normal"
               type="text"
-              {...register("firstName", {
-                required: "This field is required.",
-              })}
+              {...register("firstName", registerOptions.firstName)}
             />
             {errors.firstName && (
               <span className="text-red-500">{errors.firstName.message}</span>
@@ -56,9 +85,7 @@ const Register = () => {
             <input
               autoComplete="family-name"
               className="border rounded w-full py-1 px-2 font-normal"
-              {...register("lastName", {
-                required: "This field is required.",
-              })}
+              {...register("lastName", registerOptions.lastName)}
             />
             {errors.lastName && (
               <span className="text-red-500">{errors.lastName.message}</span>
@@ -70,9 +97,7 @@ const Register = () => {
           <input
             autoComplete="email"
             className="border rounded w-full py-1 px-2 font-normal"
-            {...register("email", {
-              required: "This field is required.",
-            })}
+            {...register("email", registerOptions.email)}
           />
           {errors.email && (
             <span className="text-red-500">{errors.email.message}</span>
@@ -84,13 +109,7 @@ const Register = () => {
             type="password"
             autoComplete="new-password"
             className="border rounded w-full py-1 px-2 font-normal"
-            {...register("password", {
-              required: "This field is required.",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters.",
-              },
-            })}
+            {...register("password", registerOptions.password)}
           />
           {errors.password && (
             <span className="text-red-500">{errors.password.message}</span>
@@ -102,15 +121,7 @@ const Register = () => {
             type="password"
             autoComplete="new-password"
             className="border rounded w-full py-1 px-2 font-normal"
-            {...register("confirmPassword", {
-              validate: (value) => {
-                if (!value) {
-                  return "This field is required.";
-                } else if (watch("password") !== value) {
-                  return "Your passwords do not match.";
-                }
-              },
-            })}
+            {...register("confirmPassword", registerOptions.confirmPassword)}
           />
           {errors.confirmPassword && (
             <span className="text-red-500">
